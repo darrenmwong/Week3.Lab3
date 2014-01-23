@@ -1,0 +1,10 @@
+                <div class="container">
+                	<div class="col-md-12 text-center"
+                <ul>
+                <% @result["Search"].map do |search| %>         
+                <a href=/movies/add/<%= search['imdbID'] %>
+                        <li><%= search["Title"] %>  -- <%= search["Year"] %><br></li></a>
+                <% end %>
+                </ul>
+        </div>
+    </div>

@@ -1,5 +1,12 @@
 source 'https://rubygems.org'
+gem 'typhoeus'
 
+gem 'json'
+
+gem 'bootstrap-sass'
+group :development do
+  gem 'rails_layout'
+end
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.2'
 

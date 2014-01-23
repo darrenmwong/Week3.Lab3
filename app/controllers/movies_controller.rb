@@ -6,6 +6,23 @@ class MoviesController < ApplicationController
           {"title"=>"The Matrix Revolutions", "year"=>"2003", "imdbID"=>"tt0242653", "Type"=>"movie"}]
 
   # route: GET    /movies(.:format)
+   def result
+    search_str = params[:movie]
+    response = Typhoeus.get("www.omdbapi.com/", :params => {:s => search_str})
+    @result = JSON.parse(response.body)
+    render :result
+  end
+
+  def add_omdb
+    response = Typhoeus.get("www.omdbapi.com/", :params => {:i => params[:id]})
+    result = JSON.parse(response.body)
+    new_movie = {"title" => result['Title'], "year" => result['Year'], 'imdbID' => result['imdbID'], "Type" => result['Type'] }
+  
+    @@movie_db << new_movie
+    redirect_to '/'
+  end
+
+
   def index
     @movies = @@movie_db
 
@@ -20,10 +37,9 @@ class MoviesController < ApplicationController
     @movie = @@movie_db.find do |m|
       m["imdbID"] == params[:id]
     end
-    if @movie.nil?
-      flash.now[:message] = "Movie not found" if @movie.nil?
-      @movie = {}
-    end
+    # if @movie.nil?
+    #   flash.now[:message] = "Movie not found"
+    #   @movie = {}
   end
 
   # route: GET    /movies/new(.:format)
@@ -36,10 +52,10 @@ class MoviesController < ApplicationController
       m["imdbID"] == params[:id]
     end
 
-    if @movie.nil?
-      flash.now[:message] = "Movie not found" if @movie.nil?
-      @movie = {}
-    end
+    # if @movie.nil?
+    #   flash.now[:message] = "Movie not found"
+    #   @movie = {}
+    # end
   end
 
   #route: # POST   /movies(.:format)
@@ -56,12 +72,19 @@ class MoviesController < ApplicationController
 
   # route: PATCH  /movies/:id(.:format)
   def update
-    #implement
+    movie = @@movie_db.find do |m|
+      m["imdbID"] == params[:id]
+    end
+    new_movie = params.require(:movie).permit(:title, :year)
+    movie.update(new_movie)
+    redirect_to '/'
   end
 
   # route: DELETE /movies/:id(.:format)
   def destroy
-    #implement
-  end
-
+    @@movie_db.delete_if do |movie|
+     movie['imdbID'] == params[:id]
+   end
+   redirect_to action: :index
+ end
 end
